@@ -2,6 +2,36 @@ from typing import Optional
 from typeguard import typechecked
 from foss42.data.geo.country import *
 from foss42.helpers.geo.country import *
+from foss42.geo.country import alpha2_to_alpha3, alpha3_to_alpha2, code_to_data, country_code_map
+
+def get_country_details(code: str) -> dict:
+    """
+    Returns a dictionary with all the details about the country given its ISO Alpha-2 or Alpha-3 country code.
+
+    >>> get_country_details('VN')
+    {'name': 'Vietnam', 'area': 331340.0, 'population': 97468029}
+    """
+    # Convert Alpha-3 code to Alpha-2 if necessary
+    if len(code) == 3:
+        code = alpha3_to_alpha2(code)
+
+    # Get country name
+    country_map = country_code_map()
+    for name, country_code in country_map.items():
+        if country_code == code:
+            country_name = name
+            break
+    else:
+        raise ValueError(f"No country found for the given code: {code}")
+
+    # Get country data
+    country_data = code_to_data(code)
+
+    # Combine data into a single dictionary
+    country_details = {'name': country_name}
+    country_details.update(country_data)
+
+    return country_details
 
 @typechecked
 def is_valid_code(code: str,
